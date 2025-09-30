@@ -80,7 +80,6 @@ cd online-book-library
 - **About**: View your profile and reading stats on `/about`.
 
 ## Screenshots
-Add screenshots to showcase your website's features. Upload images to your repository (e.g., in a `screenshots` folder) and link them here. Examples:
 
 - **Homepage**:
   ![Homepage](<img width="2153" height="1244" alt="Screenshot 2025-09-21 210630" src="https://github.com/user-attachments/assets/3b53644c-6824-464a-a267-259978a62c31" />
@@ -117,6 +116,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 - Inspired by open-source book management projects.
+
 
 
 
