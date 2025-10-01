@@ -82,23 +82,27 @@ cd online-book-library
 ## Screenshots
 
 - **Homepage**:
-  ![Homepage](<img width="2153" height="1244" alt="Screenshot 2025-09-21 210630" src="https://github.com/user-attachments/assets/3b53644c-6824-464a-a267-259978a62c31" />
-)
+  ![Homepage]
+  <img width="2153" height="1244" alt="Screenshot 2025-09-21 210630" src="https://github.com/user-attachments/assets/3da11d95-4651-4942-9c1c-9138eb2ac6b7" />
+
   _Description: The homepage with a book search bar and random book suggestions._
 
 - **Login Page**:
-  ![Login Page](<img width="2124" height="1211" alt="image" src="https://github.com/user-attachments/assets/d4f3f03c-7a75-476e-9eac-0cb54fff9eed" />
-)
-  _Description: The login form with a Teal Green and Gold theme._
+  ![Login Page]
+  <img width="2124" height="1211" alt="Screenshot 2025-09-21 212555" src="https://github.com/user-attachments/assets/96fbc22c-0f1c-459e-99b6-f17f07f466d5" />
+
+ _Description: The login form with a Teal Green and Gold theme._
 
 - **My Books Page**:
-  ![My Books Page](<img width="2154" height="1227" alt="Screenshot 2025-09-21 211622" src="https://github.com/user-attachments/assets/40955f3b-b52b-4e23-ba35-34da83f5b45c" />
-)
+  ![My Books Page]
+<img width="2154" height="1227" alt="Screenshot 2025-09-21 211622" src="https://github.com/user-attachments/assets/44007173-225b-4cd7-b52d-d8149c59ac97" />
+
   _Description: The My Books page showing To Be Read, Reading, and Read sections._
 
 - **About Page**:
-  ![About Page](<img width="2141" height="1253" alt="image" src="https://github.com/user-attachments/assets/169c6223-ee66-4cd2-ae87-e0c95f7c60db" />
-)
+  ![About Page]
+<img width="2141" height="1253" alt="Screenshot 2025-09-21 212705" src="https://github.com/user-attachments/assets/9414f4c2-b28f-4751-937f-5c0b0068cb95" />
+
   _Description: The About page with profile picture and reading stats._
 
 ## Environment Variables
@@ -116,6 +120,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 - Inspired by open-source book management projects.
+
 
 
 
