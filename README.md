@@ -82,25 +82,25 @@ cd online-book-library
 ## Screenshots
 
 - **Homepage**:
-  ![Homepage]
+  
   <img width="2153" height="1244" alt="Screenshot 2025-09-21 210630" src="https://github.com/user-attachments/assets/3da11d95-4651-4942-9c1c-9138eb2ac6b7" />
 
   _Description: The homepage with a book search bar and random book suggestions._
 
 - **Login Page**:
-  ![Login Page]
+  
   <img width="2124" height="1211" alt="Screenshot 2025-09-21 212555" src="https://github.com/user-attachments/assets/96fbc22c-0f1c-459e-99b6-f17f07f466d5" />
 
  _Description: The login form with a Teal Green and Gold theme._
 
 - **My Books Page**:
-  ![My Books Page]
+  
 <img width="2154" height="1227" alt="Screenshot 2025-09-21 211622" src="https://github.com/user-attachments/assets/44007173-225b-4cd7-b52d-d8149c59ac97" />
 
   _Description: The My Books page showing To Be Read, Reading, and Read sections._
 
 - **About Page**:
-  ![About Page]
+  
 <img width="2141" height="1253" alt="Screenshot 2025-09-21 212705" src="https://github.com/user-attachments/assets/9414f4c2-b28f-4751-937f-5c0b0068cb95" />
 
   _Description: The About page with profile picture and reading stats._
@@ -120,6 +120,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 - Inspired by open-source book management projects.
+
 
 
 
