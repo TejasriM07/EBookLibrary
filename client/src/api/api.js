@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Determine base URL from environment variable when provided, otherwise use relative '/api'.
 // In production set REACT_APP_API_URL to your backend root (for example: https://ebooklibrary-tors.onrender.com)
-// During development you can use CRA proxy or set REACT_APP_API_URL to http://localhost:5000
+// During development you can use CRA proxy or set REACT_APP_API_URL to your local backend (e.g. http://localhost:<PORT>)
 const rawApiRoot = process.env.REACT_APP_API_URL;
 const apiRoot = rawApiRoot ? rawApiRoot.replace(/\/+$/, '') : '';
 const baseURL = apiRoot ? `${apiRoot}/api` : '/api';
