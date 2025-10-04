@@ -12,19 +12,22 @@ connectDB();
 const app = express();
 
 // Allow CORS from the deployed Netlify site and local dev (React default at localhost:3000).
+// Also allow any Netlify subdomain (useful for previews) by matching '*.netlify.app'.
 const allowedOrigins = [
 	'https://ebooklibrary-tors.onrender.com',
 	'http://localhost:3000',
+	'https://ebooklib.netlify.app',
 ];
 app.use(cors({
 	origin: function (origin, callback) {
 		// allow requests with no origin (like mobile apps or curl)
 		if (!origin) return callback(null, true);
-		if (allowedOrigins.indexOf(origin) === -1) {
-			const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-			return callback(new Error(msg), false);
+		// Allow exact matches or any netlify.app subdomain
+		if (allowedOrigins.indexOf(origin) !== -1 || /\.netlify\.app$/.test(origin)) {
+			return callback(null, true);
 		}
-		return callback(null, true);
+		const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+		return callback(new Error(msg), false);
 	}
 }));
 
