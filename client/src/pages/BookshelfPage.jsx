@@ -3,7 +3,6 @@ import { searchBooksFromGoogle, fetchRandomBooksFromGoogle } from '../api/api';
 import BookCard from '../components/BookCard';
 import BookDetailsModal from '../components/BookDetailsModal';
 import { MdLibraryBooks } from 'react-icons/md';
-import useAuth from '../hooks/useAuth';
 import { MdSearch } from 'react-icons/md';
 
 const BookshelfPage = () => {
