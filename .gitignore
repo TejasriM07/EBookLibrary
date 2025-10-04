@@ -6,3 +6,6 @@ client/build/**
 # Ignore top-level build output (if present)
 build/
 build/**
+
+# Frontend env (contains API URL)
+client/.env

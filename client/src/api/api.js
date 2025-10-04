@@ -1,8 +1,12 @@
 import axios from 'axios';
 
-// Use a relative base URL so the client talks to the same origin in production.
-// During development, react-scripts proxy can forward /api to the backend (see client/package.json proxy or setupProxy).
-const API = axios.create({ baseURL: '/api' });
+// Determine base URL from environment variable when provided, otherwise use relative '/api'.
+// In production set REACT_APP_API_URL to your backend root (for example: https://ebooklibrary-tors.onrender.com)
+// During development you can use CRA proxy or set REACT_APP_API_URL to http://localhost:5000
+const rawApiRoot = process.env.REACT_APP_API_URL;
+const apiRoot = rawApiRoot ? rawApiRoot.replace(/\/+$/, '') : '';
+const baseURL = apiRoot ? `${apiRoot}/api` : '/api';
+const API = axios.create({ baseURL });
 
 
 // Add interceptor for backend auth
