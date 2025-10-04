@@ -1,1 +1,8 @@
 .env
+
+# Ignore client build output
+client/build/
+client/build/**
+# Ignore top-level build output (if present)
+build/
+build/**

@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API = axios.create({ baseURL: 'http://localhost:5000/api' });
+// Use a relative base URL so the client talks to the same origin in production.
+// During development, react-scripts proxy can forward /api to the backend (see client/package.json proxy or setupProxy).
+const API = axios.create({ baseURL: '/api' });
 
 
 // Add interceptor for backend auth
