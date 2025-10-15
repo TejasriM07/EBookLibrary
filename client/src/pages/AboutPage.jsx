@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { getProfile, uploadProfilePic } from '../api/api';
+import { useEffect, useState, useRef } from 'react';
+import { getProfile, uploadProfilePic, deleteAccount } from '../api/api';
 import { MdPerson } from 'react-icons/md';
 import useAuth from '../hooks/useAuth';
 
@@ -9,6 +9,8 @@ const AboutPage = () => {
   const [profile, setProfile] = useState({});
   const [stats, setStats] = useState({ read: 0, reading: 0, tbr: 0 });
   const [file, setFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const fileInputRef = useRef(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -35,7 +37,11 @@ const AboutPage = () => {
   }, [userId]);
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const f = e.target.files[0];
+    if (f) {
+      setFile(f);
+      setPreviewUrl(URL.createObjectURL(f));
+    }
   };
 
   const handleUpload = async () => {
@@ -48,6 +54,30 @@ const AboutPage = () => {
       alert('Profile picture updated!');
     } catch (error) {
       setError(error.response?.data?.message || 'Error updating profile picture');
+    }
+  };
+
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteClick = () => {
+    setShowConfirm(true);
+  };
+
+  const handleConfirmDelete = async (proceed) => {
+    setShowConfirm(false);
+    if (!proceed) return; // user declined
+    try {
+      setDeleting(true);
+      const { data } = await deleteAccount(userId);
+      alert(data.message || 'Account deleted');
+      // logout and redirect
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    } catch (error) {
+      setError(error.response?.data?.message || 'Error deleting account');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -76,18 +106,42 @@ const AboutPage = () => {
         <h2 className="text-2xl font-semibold text-teal-600 mt-4">{profile.username || 'N/A'}</h2>
         <p className="text-teal-600">{profile.userType || 'N/A'}</p>
         <div className="mt-6 flex items-center space-x-4">
+          {/* Hidden native file input - triggered by the yellow button */}
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            className="p-2 border border-gold-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-500"
+            style={{ display: 'none' }}
           />
-          <button
-            onClick={handleUpload}
-            className="bg-gold-200 text-teal-800 py-2 px-6 rounded-lg hover:bg-gold-600 transition-colors"
-          >
-            Upload Profile Pic
-          </button>
+
+          {/* If a preview is available show it and provide Upload/Cancel actions */}
+          {previewUrl ? (
+            <div className="flex items-center space-x-4">
+              <img src={previewUrl} alt="Preview" className="w-24 h-24 rounded-md object-cover border" />
+              <div className="flex flex-col space-y-2">
+                <button
+                  onClick={handleUpload}
+                  className="bg-gold-200 text-teal-800 py-2 px-6 rounded-lg hover:bg-gold-600 transition-colors"
+                >
+                  Upload Profile Pic
+                </button>
+                <button
+                  onClick={() => { setFile(null); setPreviewUrl(null); if (fileInputRef.current) fileInputRef.current.value = null; }}
+                  className="px-4 py-2 border rounded text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => fileInputRef.current && fileInputRef.current.click()}
+              className="bg-gold-200 text-teal-800 py-2 px-6 rounded-lg hover:bg-gold-600 transition-colors"
+            >
+              Upload Profile Pic
+            </button>
+          )}
         </div>
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-2xl">
           <div className="bg-gold-200 p-4 rounded-lg shadow-lg border border-gold-500">
@@ -103,7 +157,28 @@ const AboutPage = () => {
             <p className="text-2xl font-medium text-teal-800">{stats.tbr}</p>
           </div>
         </div>
+        <div className="mt-6">
+          <button
+            onClick={handleDeleteClick}
+            className="bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-800 transition-colors"
+            disabled={deleting}
+          >
+            Delete Account
+          </button>
+        </div>
       </div>
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg max-w-md text-center">
+            <h3 className="text-xl font-bold mb-4">Delete Account</h3>
+            <p className="mb-4">This will permanently delete your account and all related data. Are you sure?</p>
+            <div className="flex justify-center space-x-4">
+              <button onClick={() => handleConfirmDelete(false)} className="px-4 py-2 border rounded">Decline</button>
+              <button onClick={() => handleConfirmDelete(true)} className="px-4 py-2 bg-red-600 text-white rounded">Proceed</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
