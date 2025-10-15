@@ -18,25 +18,34 @@ API.interceptors.request.use((config) => {
   return config;
 }, (error) => Promise.reject(error));
 
-// Fetch books from Google by search term (title/name)
+// Fetch books from Open Library by search term (title/name)
 export const searchBooksFromGoogle = async (searchTerm) => {
   try {
-    const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=intitle:${searchTerm}&maxResults=10`);
-    if (response.data.items) {
-      return response.data.items.map(item => {
-        const volumeInfo = item.volumeInfo;
-        const saleInfo = item.saleInfo;
+    const q = encodeURIComponent(searchTerm);
+    const response = await axios.get(`https://openlibrary.org/search.json?title=${q}&limit=10`);
+    if (response.data && response.data.docs) {
+      return response.data.docs.map(doc => {
+        const title = doc.title || 'Unknown Title';
+        const author = doc.author_name ? doc.author_name.join(', ') : 'Unknown Author';
+        const genre = doc.subject ? doc.subject[0] : 'Unknown Genre';
+        const description = doc.first_sentence ? (typeof doc.first_sentence === 'string' ? doc.first_sentence : (doc.first_sentence.join ? doc.first_sentence.join(' ') : '')) : (doc.subtitle || 'No description available.');
+        const isbn = doc.isbn ? doc.isbn[0] : null;
+        const publicationYear = doc.first_publish_year || null;
+        const coverImage = doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` : 'https://placehold.co/200x300';
+        const openLibraryId = doc.key || null; // e.g. /works/OL12345W
+
         return {
-          title: volumeInfo.title || 'Unknown Title',
-          author: volumeInfo.authors ? volumeInfo.authors.join(', ') : 'Unknown Author',
-          genre: volumeInfo.categories ? volumeInfo.categories[0] : 'Unknown Genre',
-          description: volumeInfo.description || 'No description available.',
-          isbn: volumeInfo.industryIdentifiers ? volumeInfo.industryIdentifiers[0]?.identifier : null,
-          publicationYear: volumeInfo.publishedDate ? new Date(volumeInfo.publishedDate).getFullYear() : null,
-          coverImage: volumeInfo.imageLinks ? volumeInfo.imageLinks.thumbnail : 'https://placehold.co/200x300',
-          googleBooksId: item.id,
-          averageRating: volumeInfo.averageRating || null,
-          purchaseOptions: saleInfo.buyLink ? [{ platform: 'Google Books', url: saleInfo.buyLink, price: saleInfo.listPrice ? saleInfo.listPrice.amount : 0 }] : [],
+          title,
+          author,
+          genre,
+          description,
+          isbn,
+          publicationYear,
+          coverImage,
+          // keep field name used by UI for compatibility
+          googleBooksId: openLibraryId,
+          averageRating: null,
+          purchaseOptions: [],
         };
       });
     } else {
@@ -49,24 +58,32 @@ export const searchBooksFromGoogle = async (searchTerm) => {
 
 // Fetch random/popular books (with startIndex for variety)
 export const fetchRandomBooksFromGoogle = async (maxResults = 6) => {
-  const startIndex = Math.floor(Math.random() * 100); // Random start for variety
+  // Use Open Library subject endpoint to fetch popular/fiction works
+  const offset = Math.floor(Math.random() * 500); // random offset for variety
   try {
-    const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=subject:fiction&startIndex=${startIndex}&maxResults=${maxResults}`);
-    if (response.data.items) {
-      return response.data.items.map(item => {
-        const volumeInfo = item.volumeInfo;
-        const saleInfo = item.saleInfo;
+    const response = await axios.get(`https://openlibrary.org/subjects/fiction.json?limit=${maxResults}&offset=${offset}`);
+    if (response.data && response.data.works) {
+      return response.data.works.map(work => {
+        const title = work.title || 'Unknown Title';
+        const author = work.authors && work.authors.length ? work.authors.map(a => a.name).join(', ') : 'Unknown Author';
+        const genre = work.subject ? work.subject[0] : 'Unknown Genre';
+        const description = work.description ? (typeof work.description === 'string' ? work.description : (work.description.value || 'No description available.')) : 'No description available.';
+        const isbn = work.cover_edition_key || null; // not exact ISBN but an identifier
+        const publicationYear = work.first_publish_year || null;
+        const coverImage = work.cover_id ? `https://covers.openlibrary.org/b/id/${work.cover_id}-M.jpg` : 'https://placehold.co/200x300';
+        const openLibraryId = work.key || null; // e.g. /works/OL12345W
+
         return {
-          title: volumeInfo.title || 'Unknown Title',
-          author: volumeInfo.authors ? volumeInfo.authors.join(', ') : 'Unknown Author',
-          genre: volumeInfo.categories ? volumeInfo.categories[0] : 'Unknown Genre',
-          description: volumeInfo.description || 'No description available.',
-          isbn: volumeInfo.industryIdentifiers ? volumeInfo.industryIdentifiers[0]?.identifier : null,
-          publicationYear: volumeInfo.publishedDate ? new Date(volumeInfo.publishedDate).getFullYear() : null,
-          coverImage: volumeInfo.imageLinks ? volumeInfo.imageLinks.thumbnail : 'https://placehold.co/200x300',
-          googleBooksId: item.id,
-          averageRating: volumeInfo.averageRating || null,
-          purchaseOptions: saleInfo.buyLink ? [{ platform: 'Google Books', url: saleInfo.buyLink, price: saleInfo.listPrice ? saleInfo.listPrice.amount : 0 }] : [],
+          title,
+          author,
+          genre,
+          description,
+          isbn,
+          publicationYear,
+          coverImage,
+          googleBooksId: openLibraryId,
+          averageRating: null,
+          purchaseOptions: [],
         };
       });
     } else {
@@ -89,5 +106,7 @@ export const uploadProfilePic = async (userId, file) => {
   });
 };
 
-export const SearchBooksFromGoogle = async (searchTerm) => { /* ... */ };
-export const FetchRandomBooksFromGoogle = async (maxResults = 6) => { /* ... */ };
+// Delete user account and related data
+export const deleteAccount = (userId) => API.delete(`/users/${userId}`);
+
+// exported earlier: deleteAccount
