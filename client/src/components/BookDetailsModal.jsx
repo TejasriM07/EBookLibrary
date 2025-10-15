@@ -80,8 +80,8 @@ const BookDetailsModal = ({ book, isOpen, onClose }) => {
   if (!isOpen || !book) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-      <div className="bg-teal-800 text-white rounded-xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+    <div className={`fixed inset-0 flex justify-center items-center z-50 modal-backdrop ${isOpen ? 'modal-open' : 'modal-closed'}`}>
+      <div className={`modal-panel bg-teal-800 text-white rounded-xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl ${isOpen ? 'panel-open' : 'panel-closed'}`}>
         <div className="flex justify-between items-center mb-6 border-b border-teal-700 pb-4">
           <div className="flex items-center">
             <MdBook className="text-3xl text-gold-500 mr-3" />
@@ -171,19 +171,19 @@ const BookDetailsModal = ({ book, isOpen, onClose }) => {
             {((book.reviews && book.reviews.length) || localReviews.length) > 0 ? (
               <>
                 {book.reviews?.map((r, index) => (
-                  <div key={`b-${index}`} className="border-b border-teal-700 py-3">
-                    <p className="text-gray-300"><strong>Rating:</strong> {r.rating} <FaStar className="inline text-salmon-500" /></p>
-                    <p className="text-gray-400">{r.comment}</p>
-                    <p className="text-sm text-gray-500">Posted on {new Date(r.date).toLocaleDateString()}</p>
-                  </div>
-                ))}
-                {localReviews.map((r, index) => (
-                  <div key={`l-${index}`} className="border-b border-teal-700 py-3">
-                    <p className="text-gray-300"><strong>Rating:</strong> {r.rating} <FaStar className="inline text-salmon-500" /></p>
-                    <p className="text-gray-400">{r.comment}</p>
-                    <p className="text-sm text-gray-500">Posted on {new Date(r.date).toLocaleDateString()}</p>
-                  </div>
-                ))}
+                    <div key={`b-${index}`} className="border-b border-teal-700 py-3">
+                      <p className="text-gray-100"><strong>Rating:</strong> {r.rating} <FaStar className="inline text-gold-500" /></p>
+                      <p className="text-gray-200 break-words">{r.comment}</p>
+                      <p className="text-sm text-gray-400">Posted on {new Date(r.date).toLocaleDateString()}</p>
+                    </div>
+                  ))}
+                  {localReviews.map((r, index) => (
+                    <div key={`l-${index}`} className="border-b border-teal-700 py-3">
+                      <p className="text-gray-100"><strong>Rating:</strong> {r.rating} <FaStar className="inline text-gold-500" /></p>
+                      <p className="text-gray-200 break-words">{r.comment}</p>
+                      <p className="text-sm text-gray-400">Posted on {new Date(r.date).toLocaleDateString()}</p>
+                    </div>
+                  ))}
               </>
             ) : (
               <p className="text-gray-400">No reviews yet.</p>
@@ -194,7 +194,7 @@ const BookDetailsModal = ({ book, isOpen, onClose }) => {
                 {[1, 2, 3, 4, 5].map(star => (
                   <FaStar
                     key={star}
-                    className={`cursor-pointer ${ (hoverRating || review.rating) >= star ? 'text-gold-400' : 'text-gray-400' }`} 
+                    className={`cursor-pointer ${ (hoverRating || review.rating) >= star ? 'text-gold-500' : 'text-gray-400' } hover:text-gold-600`} 
                     onMouseEnter={() => setHoverRating(star)}
                     onMouseLeave={() => setHoverRating(0)}
                     onClick={() => setReview({ ...review, rating: star })}
@@ -206,7 +206,7 @@ const BookDetailsModal = ({ book, isOpen, onClose }) => {
               value={review.comment}
               onChange={(e) => setReview({ ...review, comment: e.target.value })}
               placeholder="Write your review..."
-              className="w-full p-3 border border-teal-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-salmon-500 mb-3"
+              className="w-full p-3 border border-teal-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-salmon-500 mb-3 bg-teal-700 text-white placeholder-gray-300"
               rows="4"
             />
             <button
