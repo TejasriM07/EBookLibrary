@@ -1,23 +1,65 @@
+import React, { useRef, useState } from 'react';
 import { FaStar } from 'react-icons/fa';
-import { MdFavoriteBorder } from 'react-icons/md';
 const BookCard = ({ book, onClick, buttonText }) => {
+  const [isOpening, setIsOpening] = useState(false);
+  const cardRef = useRef(null);
+
   const handleCardClick = (e) => {
-    if (onClick) {
-      onClick(book);
+    // If no click handler provided, do nothing
+    if (!onClick) return;
+    // Prevent double clicks while animation plays
+    if (isOpening) return;
+
+    // Play a small click/open sound (Web Audio API). Must be initiated by user gesture.
+    try {
+      if (typeof window !== 'undefined' && window.AudioContext) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AC();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'triangle';
+        o.frequency.setValueAtTime(420, ctx.currentTime);
+        g.gain.setValueAtTime(0.0001, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.06, ctx.currentTime + 0.01);
+        o.connect(g);
+        g.connect(ctx.destination);
+        o.start();
+        // gentle frequency sweep downward
+        o.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.26);
+        // fade out quickly
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.45);
+        setTimeout(() => {
+          try { o.stop(); ctx.close(); } catch (e) { /* ignore */ }
+        }, 500);
+      }
+    } catch (err) {
+      // If WebAudio is blocked or errors, silently ignore.
     }
+
+    // Start opening animation then call onClick after it finishes
+    setIsOpening(true);
+    const duration = 520; // match CSS animation duration (ms)
+    setTimeout(() => {
+      setIsOpening(false);
+      onClick(book);
+    }, duration);
   };
 
   return (
     <div
-      className="bg-gradient-to-br from-teal-700 to-teal-800 text-white shadow-lg rounded-xl p-2 sm:p-4 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer border border-teal-600 relative overflow-hidden"
+      ref={cardRef}
+      role={onClick ? 'button' : undefined}
+      tabIndex={0}
+      className={`book-card ${isOpening ? 'opening' : ''} bg-gradient-to-br from-teal-700 to-teal-800 text-white shadow-lg rounded-xl p-2 sm:p-4 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer border border-teal-600 relative overflow-hidden`}
       onClick={handleCardClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCardClick(e); } }}
     >
-      <div className="absolute inset-0 bg-gold-500/20 opacity-0 hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+      <div className="card-shimmer absolute inset-0 bg-gold-500/20 opacity-0 hover:opacity-90 transition-opacity duration-300 rounded-xl pointer-events-none"></div>
       <div className="relative">
         <img
           src={book.coverImage}
           alt={book.title}
-          className="w-full h-32 sm:h-48 object-cover rounded-lg"
+          className="w-full h-32 sm:h-48 object-cover rounded-lg transform transition-transform duration-400 book-card-img"
           onError={(e) => { e.target.src = 'https://placehold.co/200x300'; }}
         />
         {/* favorite icon removed - not functional */}
