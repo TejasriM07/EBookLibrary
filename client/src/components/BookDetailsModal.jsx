@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaStar, FaTimes } from 'react-icons/fa';
 import { MdBook } from 'react-icons/md';
 import useAuth from '../hooks/useAuth';
 
 const BookDetailsModal = ({ book, isOpen, onClose }) => {
   const [review, setReview] = useState({ rating: 0, comment: '' });
+  const [localReviews, setLocalReviews] = useState([]);
+  const [hoverRating, setHoverRating] = useState(0);
   const { getUserId } = useAuth();
   const userId = getUserId();
 
@@ -21,10 +23,39 @@ const BookDetailsModal = ({ book, isOpen, onClose }) => {
     window.open(url, '_blank');
   };
 
+  useEffect(() => {
+    // Load reviews for this book from localStorage
+    try {
+      const all = JSON.parse(localStorage.getItem('reviews') || '[]');
+      const matches = all.filter(r => r.bookId === (book.googleBooksId || book.googleBooksId));
+      setLocalReviews(matches);
+    } catch (err) {
+      setLocalReviews([]);
+    }
+  }, [book]);
+
   const handleAddReview = () => {
-    if (review.rating > 0 && review.comment) {
-      console.log('Review added:', { ...book, reviews: [...(book.reviews || []), { ...review, date: new Date() }] });
+    if (!userId) {
+      alert('Please log in to add a review.');
+      return;
+    }
+    if (review.rating > 0 && review.comment.trim()) {
+      const newReview = {
+        bookId: book.googleBooksId || book.googleBooksId,
+        userId,
+        rating: review.rating,
+        comment: review.comment.trim(),
+        date: new Date().toISOString(),
+      };
+      // Save to localStorage
+      const all = JSON.parse(localStorage.getItem('reviews') || '[]');
+      all.push(newReview);
+      localStorage.setItem('reviews', JSON.stringify(all));
+      // Update local state so UI updates immediately
+      setLocalReviews(prev => [...prev, newReview]);
       setReview({ rating: 0, comment: '' });
+      setHoverRating(0);
+      alert('Review added!');
     }
   };
 
@@ -137,26 +168,40 @@ const BookDetailsModal = ({ book, isOpen, onClose }) => {
             </button>
           </div>
           <h3 className="text-xl font-semibold text-gold-500 mt-6">Reviews</h3>
-          {book.reviews?.length > 0 ? (
-            book.reviews.map((r, index) => (
-              <div key={index} className="border-b border-teal-700 py-3">
-                <p className="text-gray-300"><strong>Rating:</strong> {r.rating} <FaStar className="inline text-salmon-500" /></p>
-                <p className="text-gray-400">{r.comment}</p>
-                <p className="text-sm text-gray-500">Posted on {r.date.toLocaleDateString()}</p>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-400">No reviews yet.</p>
-          )}
+            {((book.reviews && book.reviews.length) || localReviews.length) > 0 ? (
+              <>
+                {book.reviews?.map((r, index) => (
+                  <div key={`b-${index}`} className="border-b border-teal-700 py-3">
+                    <p className="text-gray-300"><strong>Rating:</strong> {r.rating} <FaStar className="inline text-salmon-500" /></p>
+                    <p className="text-gray-400">{r.comment}</p>
+                    <p className="text-sm text-gray-500">Posted on {new Date(r.date).toLocaleDateString()}</p>
+                  </div>
+                ))}
+                {localReviews.map((r, index) => (
+                  <div key={`l-${index}`} className="border-b border-teal-700 py-3">
+                    <p className="text-gray-300"><strong>Rating:</strong> {r.rating} <FaStar className="inline text-salmon-500" /></p>
+                    <p className="text-gray-400">{r.comment}</p>
+                    <p className="text-sm text-gray-500">Posted on {new Date(r.date).toLocaleDateString()}</p>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <p className="text-gray-400">No reviews yet.</p>
+            )}
           <div className="mt-4">
             <h4 className="text-lg font-semibold text-gold-700">Add a Review</h4>
-            <select
-              value={review.rating}
-              onChange={(e) => setReview({ ...review, rating: Number(e.target.value) })}
-              className="w-full p-2 border border-teal-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-700 mb-3"
-            >
-              {[1, 2, 3, 4, 5].map(num => <option key={num} value={num}>{num}</option>)}
-            </select>
+              <div className="flex items-center mb-3">
+                {[1, 2, 3, 4, 5].map(star => (
+                  <FaStar
+                    key={star}
+                    className={`cursor-pointer ${ (hoverRating || review.rating) >= star ? 'text-gold-400' : 'text-gray-400' }`} 
+                    onMouseEnter={() => setHoverRating(star)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    onClick={() => setReview({ ...review, rating: star })}
+                    size={20}
+                  />
+                ))}
+              </div>
             <textarea
               value={review.comment}
               onChange={(e) => setReview({ ...review, comment: e.target.value })}

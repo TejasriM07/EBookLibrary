@@ -1,4 +1,7 @@
 const User = require('../models/User');
+const UserBook = require('../models/UserBook');
+const fs = require('fs');
+const path = require('path');
 
 const getUserProfile = async (req, res) => {
   try {
@@ -34,3 +37,35 @@ const updateUserProfile = async (req, res) => {
 };
 
 module.exports = { getUserProfile, updateUserProfile };
+
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Delete related user-book records
+    await UserBook.deleteMany({ user: userId });
+
+    // Remove profile picture file from uploads (if it's not the default placeholder)
+    if (user.profilePic && user.profilePic.startsWith('/uploads/')) {
+      const filePath = path.join(__dirname, '..', user.profilePic);
+      fs.unlink(filePath, (err) => {
+        // ignore unlink errors but log them
+        if (err) console.error('Error deleting profile pic:', err);
+      });
+    }
+
+    // Delete the user
+    await User.findByIdAndDelete(userId);
+
+    res.json({ message: 'User and related data deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+module.exports = { getUserProfile, updateUserProfile, deleteUser };
