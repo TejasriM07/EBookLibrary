@@ -20,9 +20,7 @@ const BookCard = ({ book, onClick, buttonText }) => {
           className="w-full h-32 sm:h-48 object-cover rounded-lg"
           onError={(e) => { e.target.src = 'https://placehold.co/200x300'; }}
         />
-        <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-gold-500 text-white rounded-full p-1 sm:p-2">
-          <MdFavoriteBorder className="text-sm sm:text-lg" />
-        </div>
+        {/* favorite icon removed - not functional */}
       </div>
       <h3 className="text-base sm:text-lg font-semibold mt-2 sm:mt-3 truncate">{book.title}</h3>
       <p className="text-xs sm:text-sm text-gray-200 mt-1">{book.author}</p>
